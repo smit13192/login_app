@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:login_app/app/router/app_router.dart';
-import 'package:login_app/app/router/router_name.dart';
+import 'package:login_app/app/router/route_name.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
