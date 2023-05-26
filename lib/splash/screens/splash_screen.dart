@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:login_app/app/app_color/app_color.dart';
 import 'package:login_app/app/app_string/app_string.dart';
 import 'package:login_app/app/router/route_name.dart';
 import 'package:login_app/app/storage/app_storage.dart';
@@ -41,10 +42,10 @@ class _SplashScreenState extends State<SplashScreen> {
             AppString.appName,
             style: TextStyle(
               fontSize: 50,
-              color: Color.fromRGBO(83, 109, 254, 1),
+              color: AppColor.appColor,
             ),
           ),
-          Image.asset('assets/images/splash_image.png')
+          Image.asset(AppString.splashImage)
         ],
       ),
     );

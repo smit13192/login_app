@@ -3,10 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStorage {
   // user data store
-  static void setUserData(String email, String username) async {
+  static void setUserData(String email, String username,String imageUrl) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(AppString.email, email);
     await sharedPreferences.setString(AppString.username, username);
+    await sharedPreferences.setString(AppString.email, email);
+    await sharedPreferences.setString(AppString.imageUrl, imageUrl);
   }
 
   static Future<Map<String, String?>> getUserData() async {
