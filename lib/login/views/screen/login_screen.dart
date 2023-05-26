@@ -162,7 +162,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             text: AppString.sighInGoogle,
                             buttonColor: AppColor.googleColor,
-                            onTap: () {},
+                            onTap: () {
+                              context.read<LoginBloc>().add(GoogleLoginEvent());
+                            },
                           ),
                         ],
                       ),

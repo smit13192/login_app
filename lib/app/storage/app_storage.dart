@@ -1,10 +1,14 @@
+import 'dart:developer';
+
 import 'package:login_app/app/app_string/app_string.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStorage {
   // user data store
-  static void setUserData(String email, String username,String imageUrl) async {
+  static Future<void> setUserData(
+      String email, String username, String imageUrl) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    log('email $email, username $username, imageUrl $imageUrl');
     await sharedPreferences.setString(AppString.username, username);
     await sharedPreferences.setString(AppString.email, email);
     await sharedPreferences.setString(AppString.imageUrl, imageUrl);
