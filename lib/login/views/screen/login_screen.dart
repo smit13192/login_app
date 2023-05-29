@@ -7,6 +7,7 @@ import 'package:login_app/app/app_color/app_color.dart';
 import 'package:login_app/app/app_string/app_string.dart';
 import 'package:login_app/app/router/route_name.dart';
 import 'package:login_app/login/bloc/login_bloc.dart';
+import 'package:login_app/login/model/form_status.dart';
 import 'package:login_app/login/model/user_status.dart';
 import 'package:login_app/login/views/widgets/app_elevated_button.dart';
 import 'package:login_app/login/views/widgets/app_elevated_icon_button.dart';
@@ -42,17 +43,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocListener<LoginBloc, LoginState>(
         listener: (context, state) {
-          if (state.userStatus.isLoading) {
+          if (state.formStatus.isLoading) {
             showDialog(
               context: context,
               builder: (context) => const Loading(),
               barrierColor: Colors.transparent,
               barrierDismissible: false,
             );
-          } else if (state.userStatus.isSuccess) {
-            Navigator.pop(context);
-            Navigator.pushReplacementNamed(context, RouteName.homeScreen);
-          } else if (state.userStatus.isFailed) {
+          } else if (state.formStatus.isSuccess || state.userStatus.isLogIn) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, RouteName.homeScreen, (route) => false);
+          } else if (state.formStatus.isFailed) {
             Navigator.pop(context);
             Fluttertoast.showToast(msg: state.error!);
           }

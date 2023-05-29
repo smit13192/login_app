@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:login_app/app/storage/app_storage.dart';
+import 'package:login_app/login/model/form_status.dart';
+import 'package:login_app/login/model/user_model.dart';
 import 'package:login_app/login/model/user_status.dart';
 
 part 'login_event.dart';
@@ -13,12 +15,13 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(const LoginState()) {
-    on<EmailLoginEvent>(emailLoginEvent);
-    on<GoogleLoginEvent>(googleLoginEvent);
+    on<EmailLoginEvent>(_emailLoginEvent);
+    on<GoogleLoginEvent>(_googleLoginEvent);
+    on<LogOutEvent>(_logOutEvent);
   }
 
-  emailLoginEvent(EmailLoginEvent event, Emitter emit) async {
-    emit(state.copy(userStatus: UserStatus.loading));
+  _emailLoginEvent(EmailLoginEvent event, Emitter emit) async {
+    emit(state.copy(formStatus: FormStatus.loading));
     String username = event.username;
     String email = event.email;
     String password = event.password;
@@ -26,19 +29,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       UserCredential credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       if (credential.user != null) {
-        String imageUrl = credential.user?.photoURL ?? '';
-        AppStorage.setLogin(true);
-        await AppStorage.setUserData(email, username, imageUrl);
+        await AppStorage.setLogin(true);
+        UserModel userModel = UserModel(username: username, email: email);
+        await AppStorage.setUserData(userModel);
         emit(state.copy(
           username: username,
           email: email,
           error: null,
-          userStatus: UserStatus.success,
+          formStatus: FormStatus.success,
+          userStatus: UserStatus.logIn,
         ));
       } else {
-        AppStorage.setLogin(false);
+        await AppStorage.setLogin(false);
         emit(state.copy(
-          userStatus: UserStatus.failed,
+          formStatus: FormStatus.failed,
           error: 'user is not find',
         ));
       }
@@ -46,19 +50,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (e.code == 'email-already-in-use') {
         log(e.toString());
         emit(state.copy(
-            error: 'Email id already exist', userStatus: UserStatus.failed));
+          error: 'Email id already exist',
+          formStatus: FormStatus.failed,
+        ));
       }
     }
   }
 
-  googleLoginEvent(GoogleLoginEvent event, Emitter emit) async {
+  _googleLoginEvent(GoogleLoginEvent event, Emitter emit) async {
     try {
-      emit(state.copy(userStatus: UserStatus.loading));
+      emit(state.copy(formStatus: FormStatus.loading));
       GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
-        AppStorage.setLogin(false);
+        await AppStorage.setLogin(false);
         emit(state.copy(
-          userStatus: UserStatus.failed,
+          formStatus: FormStatus.failed,
           error: 'please sigh in to app',
         ));
         return;
@@ -71,16 +77,32 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       await FirebaseAuth.instance.signInWithCredential(credential);
       User user = FirebaseAuth.instance.currentUser!;
-      AppStorage.setLogin(true);
-      await AppStorage.setUserData(user.email ?? '', user.displayName ??  '', user.photoURL ?? '');
+      await AppStorage.setLogin(true);
+      UserModel userModel = UserModel(
+        username: user.displayName!,
+        email: user.email!,
+        imageUrl: user.photoURL,
+      );
+      await AppStorage.setUserData(userModel);
       emit(state.copy(
         username: user.displayName,
         email: user.email,
         error: null,
-        userStatus: UserStatus.success,
+        formStatus: FormStatus.success,
+        userStatus: UserStatus.logIn,
       ));
     } catch (e) {
-      emit(state.copy(error: e.toString(), userStatus: UserStatus.failed));
+      emit(state.copy(error: e.toString(), formStatus: FormStatus.failed));
     }
+  }
+
+  _logOutEvent(LogOutEvent event, Emitter emit) async {
+    emit(state.copy(formStatus: FormStatus.loading));
+    await AppStorage.clearData();
+    await AppStorage.setLogin(false);
+    emit(state.copy(
+      userStatus: UserStatus.logOut,
+      formStatus: FormStatus.success,
+    ));
   }
 }

@@ -21,15 +21,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   initLoad() {
-    Timer(const Duration(seconds: 2), () {
-      AppStorage.isLogin.then((isLogin) {
-        if (isLogin == null || isLogin == false) {
-          Navigator.pushReplacementNamed(context, RouteName.loginScreen);
-        } else if (isLogin == true) {
-          Navigator.pushReplacementNamed(context, RouteName.homeScreen);
-        }
-      });
+    Timer(const Duration(seconds: 2), () async {
+      bool? isLogin = await AppStorage.isLogin;
+      nextPage(isLogin);
     });
+  }
+
+  nextPage(bool? isLogin) {
+    if (isLogin == null || isLogin == false) {
+      Navigator.pushReplacementNamed(context, RouteName.loginScreen);
+    } else {
+      Navigator.pushReplacementNamed(context, RouteName.homeScreen);
+    }
   }
 
   @override

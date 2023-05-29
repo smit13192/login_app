@@ -1,8 +1,7 @@
-enum UserStatus { pure, loading, failed, success }
+enum UserStatus { pure, logOut, logIn }
 
 extension UserStatusExtension on UserStatus {
   bool get isPure => this == UserStatus.pure;
-  bool get isLoading => this == UserStatus.loading;
-  bool get isFailed => this == UserStatus.failed;
-  bool get isSuccess => this == UserStatus.success;
+  bool get isLogIn => this == UserStatus.logIn;
+  bool get isLogOut => this == UserStatus.logOut;
 }

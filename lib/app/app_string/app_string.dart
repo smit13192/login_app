@@ -12,6 +12,7 @@ class AppString {
 
   // app storage strings
   static const String isLogin = 'isLogin';
+  static const String appUser = 'user';
   static const String username = 'username';
   static const String email = 'email';
   static const String password = 'password';

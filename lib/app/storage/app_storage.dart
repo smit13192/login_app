@@ -1,31 +1,25 @@
-import 'dart:developer';
+import 'dart:convert';
 
 import 'package:login_app/app/app_string/app_string.dart';
+import 'package:login_app/login/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStorage {
   // user data store
-  static Future<void> setUserData(
-      String email, String username, String imageUrl) async {
+  static Future<void> setUserData(UserModel user) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    log('email $email, username $username, imageUrl $imageUrl');
-    await sharedPreferences.setString(AppString.username, username);
-    await sharedPreferences.setString(AppString.email, email);
-    await sharedPreferences.setString(AppString.imageUrl, imageUrl);
+    await sharedPreferences.setString(
+        AppString.appUser, jsonEncode(user.toJson()));
   }
 
-  static Future<Map<String, String?>> getUserData() async {
+  static Future<Map<String, dynamic>> getUserData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? email = sharedPreferences.getString(AppString.email);
-    String? username = sharedPreferences.getString(AppString.username);
-    return {
-      AppString.email: email,
-      AppString.username: username,
-    };
+    String? user = sharedPreferences.getString(AppString.appUser);
+    return jsonDecode(user ?? '');
   }
 
   // login data store
-  static void setLogin(bool isLogin) async {
+  static Future<void> setLogin(bool isLogin) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setBool(AppString.isLogin, isLogin);
   }
@@ -34,5 +28,10 @@ class AppStorage {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     bool? isLogin = sharedPreferences.getBool(AppString.isLogin);
     return isLogin;
+  }
+
+  static Future<void> clearData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.clear();
   }
 }
